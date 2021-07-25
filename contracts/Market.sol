@@ -29,7 +29,8 @@ contract NFTMarket is ReentrancyGuard {
     uint256 price;
     bool sold;
   }
-
+  /* Here we create the structure of the mapping.
+  The key will be populated with the creation of each market item */
   mapping(uint256 => MarketItem) private idToMarketItem;
 
   event MarketItemCreated (
@@ -48,16 +49,26 @@ contract NFTMarket is ReentrancyGuard {
   }
   
   /* Places an item for sale on the marketplace */
+  /* The nftContract is the address of where that nft is
+  Here we only have a reference to the nft contract, we don't mint the NFT */
+  /* The tokenId is the unique identifier of that nft, it makes it unique,
+  It differentiates that nft form the rest of the nfts in the contract */
   function createMarketItem(
     address nftContract,
     uint256 tokenId,
     uint256 price
   ) public payable nonReentrant {
     require(price > 0, "Price must be at least 1 wei");
+
+    // This is the payment for listing the nft on the platform
     require(msg.value == listingPrice, "Price must be equal to listing price");
 
     _itemIds.increment();
     uint256 itemId = _itemIds.current();
+
+    /*  payable(address(0)),
+     The owner of the contract is no one since the article hasn't been bought yet,
+     it is only listed for sale */
   
     idToMarketItem[itemId] =  MarketItem(
       itemId,
@@ -69,6 +80,7 @@ contract NFTMarket is ReentrancyGuard {
       false
     );
 
+    /*  address(this) is the address of the contract itself */
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
     emit MarketItemCreated(
@@ -81,13 +93,14 @@ contract NFTMarket is ReentrancyGuard {
       false
     );
   }
-
+  
   /* Creates the sale of a marketplace item */
   /* Transfers ownership of the item, as well as funds between parties */
   function createMarketSale(
     address nftContract,
     uint256 itemId
     ) public payable nonReentrant {
+
     uint price = idToMarketItem[itemId].price;
     uint tokenId = idToMarketItem[itemId].tokenId;
     require(msg.value == price, "Please submit the asking price in order to complete the purchase");
@@ -118,7 +131,7 @@ contract NFTMarket is ReentrancyGuard {
     return items;
   }
 
-  /* Returns onlyl items that a user has purchased */
+  /* Returns only items that a user has purchased */
   function fetchMyNFTs() public view returns (MarketItem[] memory) {
     uint totalItemCount = _itemIds.current();
     uint itemCount = 0;

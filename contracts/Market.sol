@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 contract NFTMarket is ReentrancyGuard {
   using Counters for Counters.Counter;
@@ -59,7 +59,7 @@ contract NFTMarket is ReentrancyGuard {
     uint256 price
   ) public payable nonReentrant {
     require(price > 0, "Price must be at least 1 wei");
-
+    console.log(msg.value, listingPrice);
     // This is the payment for listing the nft on the platform
     require(msg.value == listingPrice, "Price must be equal to listing price");
 

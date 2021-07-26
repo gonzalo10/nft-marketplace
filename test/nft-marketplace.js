@@ -18,19 +18,13 @@ describe('NFTMarket', function () {
 
 		let listingPrice = await market.getListingPrice()
 		listingPrice = listingPrice.toString()
+		const valueSend = { value: listingPrice }
 
-		await market.createMarketItem(nftContractAddress, 1, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 2, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 3, 1000, {
-			value: listingPrice
-		})
+		await market.createMarketItem(nftContractAddress, 1, 1000, valueSend)
+		await market.createMarketItem(nftContractAddress, 2, 1000, valueSend)
+		await market.createMarketItem(nftContractAddress, 3, 1000, valueSend)
 
-		const [_, userAddress, userAddress2, userAddress3] =
-			await ethers.getSigners()
+		const [_, userAddress, userAddress2] = await ethers.getSigners()
 
 		await market
 			.connect(userAddress)
@@ -39,56 +33,13 @@ describe('NFTMarket', function () {
 			.connect(userAddress2)
 			.createMarketSale(nftContractAddress, 2, { value: 1000 })
 
-		await market
-			.connect(userAddress3)
-			.createMarketSale(nftContractAddress, 3, { value: 1000 })
-
-		transaction = await nft.createToken('d')
-		transaction = await nft.createToken('e')
-		transaction = await nft.createToken('f')
-		transaction = await nft.createToken('g')
-		transaction = await nft.createToken('h')
-		transaction = await nft.createToken('i')
-
-		await market.createMarketItem(nftContractAddress, 4, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 5, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 6, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 7, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 8, 1000, {
-			value: listingPrice
-		})
-		await market.createMarketItem(nftContractAddress, 9, 1000, {
-			value: listingPrice
-		})
-
-		await market
-			.connect(userAddress2)
-			.createMarketSale(nftContractAddress, 4, { value: 1000 }) // d
-		await market
-			.connect(userAddress2)
-			.createMarketSale(nftContractAddress, 5, { value: 1000 }) // e
-		await market
-			.connect(userAddress2)
-			.createMarketSale(nftContractAddress, 6, { value: 1000 }) // f
-		await market
-			.connect(userAddress2)
-			.createMarketSale(nftContractAddress, 7, { value: 1000 }) // g
-
 		items = await market.fetchMarketItems()
 		items = await Promise.all(
 			items.map(async (i) => {
 				const tokenUri = await nft.tokenURI(i.tokenId)
 				let item = {
 					price: i.price.toNumber(),
-					tokenId: i.price.toNumber(),
+					tokenId: i.tokenId.toNumber(),
 					seller: i.seller,
 					owner: i.owner,
 					tokenUri
